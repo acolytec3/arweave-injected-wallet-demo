@@ -35,10 +35,18 @@ and as such can be used in `arweave-js` anywhere a JWK is required with the exce
 
 ```js
 // Get the injected wallet's address
-const address = await arweave.wallets.jwkToAddress(window.injectedWallet.publicKey)
-
-// Create a transaction
-const txn = await arweave.createTransaction({ data: Buffer.from('my magical message','utf8'), window.injectedWallet.publicKey})
+const address = await arweave.wallets.jwkToAddress(
+  window.injectedWallet.publicKey
+);
 ```
 
 `window.injectedWallet.sign(transaction)` - this method takes a `Transaction` objected created by `arweave.createTransaction.sign`, signs it, and then posts to the blockchain. No status codes or transaction IDs are returned by this method so it's up to the dapp to detect the transaction
+
+```js
+
+// Create a transaction
+const txn = await arweave.createTransaction({ data: Buffer.from('my magical message','utf8'), window.injectedWallet.publicKey})
+
+// Send transaction to extension to sign/post to chain
+window.injectedWallet.sign(txn)
+```
