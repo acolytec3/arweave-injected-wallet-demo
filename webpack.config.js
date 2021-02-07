@@ -136,6 +136,10 @@ var options = {
             );
           },
         },
+        {
+          from: 'src/assets/img',
+          to: path.join(__dirname, 'build')
+        }
       ],
     }),
     new HtmlWebpackPlugin({
