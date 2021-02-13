@@ -1,7 +1,6 @@
 import { Store } from 'webext-redux';
 import Arweave from 'arweave';
-import Transaction, { Tag } from 'arweave/node/lib/transaction';
-import crypto from 'arweave/web/lib/crypto/crypto-interface';
+import { Tag } from 'arweave/node/lib/transaction';
 const arweave = Arweave.init({
     host: 'arweave.net',
     port: 443,
@@ -41,6 +40,8 @@ window.addEventListener('message', async (event) => {
         console.log('signed transaction is:', tx);
         let res = await arweave.transactions.post(tx);
         console.log('transaction submission status', res);
+        //@ts-ignore
+        window.postMessage({ 'txId': tx.id, 'status': res })
     }
 });
 
@@ -92,9 +93,21 @@ const injectWallet = async () => {
     let state = store.getState();
     let injectedWallet = `window.injectedWallet = {
         publicKey: { e: "${state.wallet.e}", n: "${state.wallet.n}" },
-        sign: function (transaction) {
-            window.postMessage({ transaction: transaction })
-        }} `;
+        sign: async function (transaction) {
+            return new Promise(async resolve => {
+                window.postMessage({ transaction: transaction })
+                window.addEventListener('message',(event) => { 
+                    if (event.source !== window) {
+                        return;
+                    }
+                    if (event.origin !== window.origin) {
+                        return;
+                    }
+                    if (event.data.hasOwnProperty('txId')) {
+                        resolve({'txId':event.data.txId, 'status': event.data.status});
+                    }
+            })
+        })}} `;
     console.log(injectedWallet);
     var s = document.createElement('script');
     s.textContent = injectedWallet;
@@ -104,4 +117,5 @@ const injectWallet = async () => {
     };
     document.head.appendChild(s);
 };
+
 export { };

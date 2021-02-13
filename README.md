@@ -24,7 +24,7 @@ The Arweave ecosystem is currently inherently insecure for users since the only 
 3. Click on the extension's browser icon and then the "Load Wallet" button in the popup.
 4. Now, click on the "connect wallet" button
 5. Enter any appropriate data for your transaction
-6. Click "Submit transaction" and monitor the console logs to see your transaction post
+6. Click "Submit transaction" and wait for an alert indicating your posted transaction ID.
 
 ## Wallet API
 
@@ -40,7 +40,7 @@ const address = await arweave.wallets.jwkToAddress(
 );
 ```
 
-`window.injectedWallet.sign(transaction)` - this method takes a `Transaction` objected created by `arweave.createTransaction.sign`, signs it, and then posts to the blockchain. No status codes or transaction IDs are returned by this method so it's up to the dapp to detect the transaction
+`window.injectedWallet.sign(transaction)` - this is an `async` method that takes a `Transaction` object created by `arweave.createTransaction.sign`, signs it, posts to the blockchain, and then returns a response object containing the transaction ID and the status code resulting from posting the transaction to the blockchain.
 
 ```js
 
@@ -48,5 +48,6 @@ const address = await arweave.wallets.jwkToAddress(
 const txn = await arweave.createTransaction({ data: Buffer.from('my magical message','utf8'), window.injectedWallet.publicKey})
 
 // Send transaction to extension to sign/post to chain
-window.injectedWallet.sign(txn)
+let res = await window.injectedWallet.sign(txn)
+console.log(res) // This will display something like {'txId':'aj12jf...', 'status':{ status : 200, statusText: 'OK'...}}
 ```
